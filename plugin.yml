@@ -1,0 +1,11 @@
+main: com.thyssoda.gladiators.Gladiators
+version: 2.0
+name: Gladiators
+author: Thyssoda
+commands:
+  gladiators:
+    description: Commande principale du jeu !
+    aliases: gl
+  leave:
+    description: Quitte la partie !
+    aliases: [hub, lobby, quit]
