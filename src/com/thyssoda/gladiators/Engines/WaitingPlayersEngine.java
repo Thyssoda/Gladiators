@@ -31,8 +31,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.thyssoda.gladiators.Gladiators;
 import com.thyssoda.gladiators.Game.GladiatorsState;
-import com.thyssoda.gladiators.Scoreboards.CustomScoreboardManager;
-import com.thyssoda.gladiators.Scoreboards.ScoreboardRunnable;
 import com.thyssoda.gladiators.Utils.ChatUtils;
 
 import net.md_5.bungee.api.ChatColor;
@@ -40,22 +38,18 @@ import net.md_5.bungee.api.ChatColor;
 public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 	private Gladiators pl;
+	private CreationEngine ce;
 	private ChatUtils cu;
-	private CustomScoreboardManager csm;
-	private ScoreboardRunnable sr;
-	private GladiatorsState gs;
 	private GameEngine se;
 	
-	public WaitingPlayersEngine(Gladiators pl, ChatUtils cu, GameEngine se, ScoreboardRunnable sr) {
+	public WaitingPlayersEngine(Gladiators pl, ChatUtils cu, GameEngine se, CreationEngine ce) {
 		this.pl = pl;
 		this.cu = cu;
 		this.se = se;
-		this.sr = sr;
-		this.csm = new CustomScoreboardManager(gs, se, this);
+		this.ce = ce;
 	}
 	
 	private Location locAtSign = null;
-	public ArrayList<UUID> playerInGame = new ArrayList<>();
 	public ArrayList<UUID> teamBleu = new ArrayList<>();
 	public ArrayList<UUID> teamBleu2 = new ArrayList<>();
 	public ArrayList<UUID> teamRouge = new ArrayList<>();
@@ -78,7 +72,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 			Sign sign = (Sign) b.getState();
 
-			sign.setLine(2, ChatColor.RED + String.valueOf(playerInGame.size()) + " / 6");
+			sign.setLine(2, ChatColor.RED + String.valueOf(ce.playerInGame.size()) + " / 6");
 
 			sign.update();
 
@@ -89,7 +83,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	
 	public void setLevel(int timer) {
 
-		for (UUID uuid : playerInGame) {
+		for (UUID uuid : ce.playerInGame) {
 
 			Player player = Bukkit.getPlayer(uuid);
 
@@ -115,6 +109,14 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 					Bukkit.broadcastMessage(ChatColor.GREEN + "La partie commence dans : " + ChatColor.GOLD + ""
 							+ ChatColor.BOLD + temps);
+					
+					for(UUID uuid : ce.playerInGame){
+						
+						Player p = Bukkit.getPlayer(uuid);
+						
+						ce.setScoreboard(p);
+				
+					}
 
 				} else if (temps == 0) {
 
@@ -124,7 +126,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 					se.start();
 
-				} else if (playerInGame.size() < 2) {
+				} else if (ce.playerInGame.size() < 2) {
 
 					Bukkit.getServer().getScheduler().cancelTask(task);
 
@@ -233,7 +235,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	public void onChat(AsyncPlayerChatEvent e) {
 		Player p = e.getPlayer();
 
-		for (UUID uuid : playerInGame) {
+		for (UUID uuid : ce.playerInGame) {
 			Player pl = Bukkit.getPlayer(uuid);
 			if (pl == p) {
 
@@ -305,18 +307,14 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 					
 					if (s.getLine(1).equals(ChatColor.AQUA + "[LOBBY]")) {
 						
-						if (!playerInGame.contains(p.getUniqueId())) {
+						if (!ce.playerInGame.contains(p.getUniqueId())) {
 
 							Location loc = new Location(Bukkit.getWorld("world"),
 									pl.getConfig().getDouble("Lobby.x"),
 									pl.getConfig().getDouble("Lobby.y"),
 									pl.getConfig().getDouble("Lobby.z"));
 
-							playerInGame.add(p.getUniqueId());
-							
-							new CustomScoreboardManager(p);
-							sr.sendLine();
-							p.setScoreboard(CustomScoreboardManager.getScoreboard(p).getMainScoreboard());
+							ce.playerInGame.add(p.getUniqueId());
 
 							if (pl.getConfig().getConfigurationSection("Players") == null) {
 
@@ -409,20 +407,29 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							signUpdate();
 
 							performClickSignEffect();
+							
+							ce.setScoreboard(p);
 
 							p.getInventory().clear();
 							p.getInventory().setItem(4, equipe);
 							im.setDisplayName(ChatColor.DARK_PURPLE + "Choisis ton équipe !");
 							equipe.setItemMeta(im);
 
-							if (playerInGame.size() == 2) {
+							if (ce.playerInGame.size() == 2) {
 
 								GladiatorsState.setState(GladiatorsState.LOBBY);
-								timer();
+								
+								for(UUID uuid : ce.playerInGame){
+									
+									Player pl = Bukkit.getPlayer(uuid);
+									
+									ce.setScoreboard(pl);
+							
+								}
 
 							}
 
-						} else if (playerInGame.size() == 6) {
+						} else if (ce.playerInGame.size() == 6) {
 
 							p.sendMessage(ChatColor.RED + "La partie est pleine !");
 							e.setCancelled(true);
@@ -660,10 +667,10 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	public void onPlayerQuit(PlayerQuitEvent e){
 		Player p = e.getPlayer();
 		
-		if(playerInGame.size() > 0){
+		if(ce.playerInGame.size() > 0){
 			
 			
-			Iterator<UUID> itr = playerInGame.iterator();
+			Iterator<UUID> itr = ce.playerInGame.iterator();
 			while (itr.hasNext()) {
 
 				Player pl = (Player) Bukkit.getPlayer(itr.next());
@@ -678,7 +685,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 						teamBleu.remove(uuid);
 						teamBleu2.remove(uuid);
 
-						csm.bleu.removePlayer(p);
+						ce.bleu.removePlayer(p);
 						joueur1 = null;
 
 						itr.remove();
@@ -689,7 +696,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 						teamBleu.remove(uuid);
 						teamBleu2.remove(uuid);
 
-						csm.bleu.removePlayer(p);
+						ce.bleu.removePlayer(p);
 						joueur2 = null;
 
 						itr.remove();
@@ -700,7 +707,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 						teamBleu.remove(uuid);
 						teamBleu2.remove(uuid);
 
-						csm.bleu.removePlayer(p);
+						ce.bleu.removePlayer(p);
 						joueur3 = null;
 
 						itr.remove();
@@ -712,7 +719,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							teamRouge.remove(uuid);
 							teamRouge2.remove(uuid);
 
-							csm.rouge.removePlayer(p);
+							ce.rouge.removePlayer(p);
 							joueur4 = null;
 
 							itr.remove();
@@ -724,7 +731,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							teamRouge.remove(uuid);
 							teamRouge2.remove(uuid);
 
-							csm.rouge.removePlayer(p);
+							ce.rouge.removePlayer(p);
 							joueur5 = null;
 
 							itr.remove();
@@ -736,7 +743,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							teamRouge.remove(uuid);
 							teamRouge2.remove(uuid);
 
-							csm.rouge.removePlayer(p);
+							ce.rouge.removePlayer(p);
 							joueur6 = null;
 
 							itr.remove();
@@ -751,10 +758,18 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 				}
 
 			}
-
-			playerInGame.remove(p.getUniqueId());
 			
-			if(playerInGame.size() < 2){
+			for(UUID uuid : ce.playerInGame){
+				
+				Player pl = Bukkit.getPlayer(uuid);
+				
+				ce.setScoreboard(pl);
+		
+			}
+
+			ce.playerInGame.remove(p.getUniqueId());
+			
+			if(ce.playerInGame.size() < 2){
 				
 				Bukkit.getServer().getScheduler().cancelTask(task);
 				GladiatorsState.setState(GladiatorsState.WAIT);
@@ -790,7 +805,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 				p.sendMessage(ChatColor.GOLD + "Tu as été téléporté au lobby !");
 
-				Iterator<UUID> itr = playerInGame.iterator();
+				Iterator<UUID> itr = ce.playerInGame.iterator();
 				while (itr.hasNext()) {
 
 					Player pl = (Player) Bukkit.getPlayer(itr.next());
@@ -805,7 +820,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							teamBleu.remove(uuid);
 							teamBleu2.remove(uuid);
 
-							csm.bleu.removePlayer(p);
+							ce.bleu.removePlayer(p);
 
 							if (joueur1 == p) {
 
@@ -826,7 +841,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							teamRouge.remove(uuid);
 							teamRouge2.remove(uuid);
 
-							csm.rouge.removePlayer(p);
+							ce.rouge.removePlayer(p);
 
 							if (joueur4 == p) {
 
@@ -846,16 +861,11 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 						itr.remove();
 						
-						if(CustomScoreboardManager.sb.containsKey(p)){
-							
-							CustomScoreboardManager.sb.remove(p);
-
-							}
 					}
 
 				}
 
-				if (playerInGame.size() < 2) {
+				if (ce.playerInGame.size() < 2) {
 
 					GladiatorsState.setState(GladiatorsState.WAIT);
 					Bukkit.getServer().getScheduler().cancelTask(task);
@@ -863,6 +873,15 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 				}
 
 				signUpdate();
+				
+				for(UUID uuid : ce.playerInGame){
+					
+					Player pl = Bukkit.getPlayer(uuid);
+					
+					ce.setScoreboard(pl);
+			
+				}
+				
 				p.getInventory().clear();
 				
 				return true;

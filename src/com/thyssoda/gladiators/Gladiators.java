@@ -9,8 +9,6 @@ import com.thyssoda.gladiators.Engines.CreationEngine;
 import com.thyssoda.gladiators.Engines.GameEngine;
 import com.thyssoda.gladiators.Engines.WaitingPlayersEngine;
 import com.thyssoda.gladiators.Game.GladiatorsState;
-import com.thyssoda.gladiators.Scoreboards.CustomScoreboardManager;
-import com.thyssoda.gladiators.Scoreboards.ScoreboardRunnable;
 import com.thyssoda.gladiators.Utils.ChatUtils;
 
 public class Gladiators extends JavaPlugin {
@@ -19,23 +17,19 @@ public class Gladiators extends JavaPlugin {
 	private WaitingPlayersEngine wpe;
 	private ChatUtils cu;
 	private GameEngine se;
-	private ScoreboardRunnable sr;
-	private CustomScoreboardManager csm;
 
 	public void onEnable(){
 		PluginDescriptionFile pdfFile = getDescription();
 		Logger logger = getLogger();
 		
-		this.ce = new CreationEngine(this, wpe);
+		this.ce = new CreationEngine(this, wpe, se);
 		ce.registerEvents();
-		this.wpe = new WaitingPlayersEngine(this, cu, se, sr);
+		this.wpe = new WaitingPlayersEngine(this, cu, se, ce);
 		wpe.registerEvents();
 		wpe.signUpdate();
-		this.se = new GameEngine(this, csm);
+		this.se = new GameEngine(this, ce);
 		se.registerEvents();
 				
-		new ScoreboardRunnable().runTaskTimer(this, 20L, 20L);
-		
 		GladiatorsState.setState(GladiatorsState.WAIT);
 		
 		registerCommands();
@@ -49,14 +43,12 @@ public class Gladiators extends JavaPlugin {
 		PluginDescriptionFile pdfFile = getDescription();
 		Logger logger = getLogger();
 		
-		se.end(se.scoreBleu, se.scoreRouge, wpe.joueurNone);
-		
 		logger.info(pdfFile.getName() + " has been disabled (v" + pdfFile.getVersion() + ")");
 	}
 	
 	public void registerCommands(){
-		getCommand("gladiators").setExecutor(new CreationEngine(this, wpe));
-		getCommand("leave").setExecutor(new WaitingPlayersEngine(this, cu, se, sr));
+		getCommand("gladiators").setExecutor(new CreationEngine(this, wpe, se));
+		getCommand("leave").setExecutor(new WaitingPlayersEngine(this, cu, se, ce));
 	}
 	
 	public void registerConfig(){

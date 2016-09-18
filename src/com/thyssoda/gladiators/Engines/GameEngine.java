@@ -40,8 +40,6 @@ import org.bukkit.util.Vector;
 
 import com.thyssoda.gladiators.Gladiators;
 import com.thyssoda.gladiators.Game.GladiatorsState;
-import com.thyssoda.gladiators.Scoreboards.CustomScoreboardManager;
-import com.thyssoda.gladiators.Scoreboards.ScoreboardRunnable;
 import com.thyssoda.gladiators.Utils.ChatUtils;
 
 import net.md_5.bungee.api.ChatColor;
@@ -56,15 +54,14 @@ import net.minecraft.server.v1_10_R1.PlayerConnection;
 public class GameEngine implements Listener {
 
 	private Gladiators pl;
+	private CreationEngine ce;
 	private WaitingPlayersEngine wpe;
 	private ChatUtils cu;
-	private ScoreboardRunnable sr;
-	private CustomScoreboardManager csm;
 	
-	public GameEngine(Gladiators pl, CustomScoreboardManager csm){
-		this.csm = csm;
+	public GameEngine(Gladiators pl, CreationEngine ce){
 		this.pl = pl;
-		this.wpe = new WaitingPlayersEngine(pl, cu, this, sr);
+		this.ce = ce;
+		this.wpe = new WaitingPlayersEngine(this.pl, cu, this, this.ce);
 	}
 	
 	private ArrayList<Location> locsBleu = new ArrayList<Location>();
@@ -151,6 +148,14 @@ public class GameEngine implements Listener {
 					respawnInstant(killed);
 
 					dropSkull(killed);
+					
+					for(UUID uuid : ce.playerInGame){
+						
+						Player p = Bukkit.getPlayer(uuid);
+						
+						ce.setScoreboard(p);
+				
+					}
 
 					e.setDeathMessage(cu.getPrefix() + killed + " s'est fait massacrer par " + player);
 
@@ -201,7 +206,7 @@ public class GameEngine implements Listener {
 
 						if (score1 > score2) {
 
-							for (UUID str : wpe.playerInGame) {
+							for (UUID str : ce.playerInGame) {
 
 								Player play = Bukkit.getPlayer(str);
 
@@ -211,7 +216,7 @@ public class GameEngine implements Listener {
 
 						} else if (score2 > score1) {
 
-							for (UUID str : wpe.playerInGame) {
+							for (UUID str : ce.playerInGame) {
 
 								Player play = Bukkit.getPlayer(str);
 
@@ -232,7 +237,7 @@ public class GameEngine implements Listener {
 
 				} else if (temps4 == 0) {
 
-					Iterator<UUID> itr = wpe.playerInGame.iterator();
+					Iterator<UUID> itr = ce.playerInGame.iterator();
 					while (itr.hasNext()) {
 
 						Player play = (Player) Bukkit.getPlayer(itr.next());
@@ -282,11 +287,11 @@ public class GameEngine implements Listener {
 		locsRouge.add(1, new Location(Bukkit.getWorld("world"), x3, y3, z3));
 		locsRouge.add(2, new Location(Bukkit.getWorld("world"), x5, y5, z5));
 
-		for (UUID uuid : wpe.playerInGame) {
+		for (UUID uuid : ce.playerInGame) {
 
 			Player pll = Bukkit.getPlayer(uuid);
 
-			if (!wpe.playerInGame.contains((UUID) uuid)) {
+			if (!ce.playerInGame.contains((UUID) uuid)) {
 
 				if (wpe.u == 0) {
 
@@ -398,17 +403,17 @@ public class GameEngine implements Listener {
 				pl.getConfig().getDouble("Block.rouge.y"),
 				pl.getConfig().getDouble("Block.rouge.z"));
 
-		for (UUID uuid : wpe.playerInGame) {
+		for (UUID uuid : ce.playerInGame) {
 
 			Player playerss = Bukkit.getPlayer(uuid);
 
 			if (wpe.teamBleu2.contains((UUID) uuid)) {
 
-				csm.bleu.addPlayer(Bukkit.getPlayer(uuid));
+				ce.bleu.addPlayer(Bukkit.getPlayer(uuid));
 
 			} else if (wpe.teamRouge2.contains((UUID) uuid)) {
 
-				csm.rouge.addPlayer(Bukkit.getPlayer(uuid));
+				ce.rouge.addPlayer(Bukkit.getPlayer(uuid));
 
 			}
 
@@ -423,6 +428,14 @@ public class GameEngine implements Listener {
 		}
 
 		untilEnd(scoreBleu, scoreRouge);
+		
+		for(UUID uuid : ce.playerInGame){
+			
+			Player p = Bukkit.getPlayer(uuid);
+			
+			ce.setScoreboard(p);
+	
+		}
 		
 	}
 	
@@ -444,7 +457,7 @@ public class GameEngine implements Listener {
 
 				if (temps3 != 0) {
 
-					for(UUID uuid : wpe.playerInGame){
+					for(UUID uuid : ce.playerInGame){
 						Player str = Bukkit.getPlayer(uuid);
 						
 						str.playSound(str.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.0f, 1.0f);
@@ -675,7 +688,7 @@ public class GameEngine implements Listener {
 
 					event.setCancelled(true);
 
-					for(UUID uuid : wpe.playerInGame){
+					for(UUID uuid : ce.playerInGame){
 					Player p = Bukkit.getPlayer(uuid);
 						
 					end(scoreBleu, scoreRouge, p);
@@ -701,7 +714,7 @@ public class GameEngine implements Listener {
 
 					event.setCancelled(true);
 					
-					for(UUID uuid : wpe.playerInGame){
+					for(UUID uuid : ce.playerInGame){
 						Player p = Bukkit.getPlayer(uuid);
 							
 						end(scoreBleu, scoreRouge, p);
