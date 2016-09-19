@@ -57,21 +57,21 @@ public class GameEngine implements Listener {
 	private CreationEngine ce;
 	private WaitingPlayersEngine wpe;
 	private ChatUtils cu;
-	
-	public GameEngine(Gladiators pl, CreationEngine ce){
+
+	public GameEngine(Gladiators pl, CreationEngine ce) {
 		this.pl = pl;
 		this.ce = ce;
 		this.wpe = new WaitingPlayersEngine(this.pl, cu, this, this.ce);
 	}
-	
+
 	private ArrayList<Location> locsBleu = new ArrayList<Location>();
 	private ArrayList<Location> locsRouge = new ArrayList<Location>();
-	
+
 	public HashMap<Player, Location> joueurLoc = new HashMap<Player, Location>();
 
 	int lb = 0;
 	int lr = 0;
-	
+
 	public int task4;
 	public int temps4 = 480;
 	private Location locBleu;
@@ -79,13 +79,12 @@ public class GameEngine implements Listener {
 	public int scoreBleu = 0;
 	public int scoreRouge = 0;
 
-	
-	public void registerEvents(){
+	public void registerEvents() {
 		PluginManager pm = Bukkit.getPluginManager();
-		
+
 		pm.registerEvents(this, pl);
 	}
-	
+
 	private void respawnInstant(final Player player) {
 		Bukkit.getScheduler().runTaskLater(pl, new Runnable() {
 			@Override
@@ -110,7 +109,7 @@ public class GameEngine implements Listener {
 		killed.getWorld().dropItemNaturally(killed.getLocation(), skull);
 
 	}
-	
+
 	public HashMap<Player, Integer> kills = new HashMap<>();
 
 	@EventHandler
@@ -130,13 +129,13 @@ public class GameEngine implements Listener {
 
 				Player killed = (Player) e.getEntity();
 				Player player = (Player) e.getEntity().getKiller();
-				
-				if(!kills.containsKey(player)){
+
+				if (!kills.containsKey(player)) {
 					kills.put(player, 1);
-				}else{
+				} else {
 
 					kills.put(player, kills.get(player) + 1);
-					
+
 				}
 
 				if (temps4 != 0) {
@@ -148,21 +147,20 @@ public class GameEngine implements Listener {
 					respawnInstant(killed);
 
 					dropSkull(killed);
-					
-					for(UUID uuid : ce.playerInGame){
-						
+
+					for (UUID uuid : ce.playerInGame) {
+
 						Player p = Bukkit.getPlayer(uuid);
-						
+
 						ce.setScoreboard(p);
-				
+
 					}
 
 					e.setDeathMessage(cu.getPrefix() + killed + " s'est fait massacrer par " + player);
 
 				}
 
-				if (player == wpe.joueur1 || player == wpe.joueur2
-						|| player == wpe.joueur3) {
+				if (player == wpe.joueur1 || player == wpe.joueur2 || player == wpe.joueur3) {
 
 					if (scoreBleu == 0) {
 
@@ -176,8 +174,7 @@ public class GameEngine implements Listener {
 
 				}
 
-				if (player == wpe.joueur4 || player == wpe.joueur5
-						|| player == wpe.joueur6) {
+				if (player == wpe.joueur4 || player == wpe.joueur5 || player == wpe.joueur6) {
 
 					if (scoreRouge == 0) {
 
@@ -241,9 +238,9 @@ public class GameEngine implements Listener {
 					while (itr.hasNext()) {
 
 						Player play = (Player) Bukkit.getPlayer(itr.next());
-	
+
 						end(scoreBleu, scoreRouge, play);
-					
+
 						itr.remove();
 
 					}
@@ -255,9 +252,9 @@ public class GameEngine implements Listener {
 		}, 20, 20);
 
 	}
-	
-	public void start(){
-		
+
+	public void start() {
+
 		GladiatorsState.setState(GladiatorsState.GAMEPVP);
 
 		double x = pl.getConfig().getDouble("Spawns_bleu." + 1 + ".x");
@@ -393,15 +390,11 @@ public class GameEngine implements Listener {
 
 		}
 
-		locBleu = new Location(Bukkit.getWorld("world"),
-				pl.getConfig().getDouble("Block.bleu.x"),
-				pl.getConfig().getDouble("Block.bleu.y"),
-				pl.getConfig().getDouble("Block.bleu.z"));
+		locBleu = new Location(Bukkit.getWorld("world"), pl.getConfig().getDouble("Block.bleu.x"),
+				pl.getConfig().getDouble("Block.bleu.y"), pl.getConfig().getDouble("Block.bleu.z"));
 
-		locRouge = new Location(Bukkit.getWorld("world"),
-				pl.getConfig().getDouble("Block.rouge.x"),
-				pl.getConfig().getDouble("Block.rouge.y"),
-				pl.getConfig().getDouble("Block.rouge.z"));
+		locRouge = new Location(Bukkit.getWorld("world"), pl.getConfig().getDouble("Block.rouge.x"),
+				pl.getConfig().getDouble("Block.rouge.y"), pl.getConfig().getDouble("Block.rouge.z"));
 
 		for (UUID uuid : ce.playerInGame) {
 
@@ -428,23 +421,21 @@ public class GameEngine implements Listener {
 		}
 
 		untilEnd(scoreBleu, scoreRouge);
-		
-		for(UUID uuid : ce.playerInGame){
-			
+
+		for (UUID uuid : ce.playerInGame) {
+
 			Player p = Bukkit.getPlayer(uuid);
-			
+
 			ce.setScoreboard(p);
-	
+
 		}
-		
+
 	}
-	
-	
-	public void stop(){
+
+	public void stop() {
 		Bukkit.getServer().getScheduler().cancelTask(task4);
 		GladiatorsState.setState(GladiatorsState.WAIT);
 	}
-	
 
 	private int temps3 = 4;
 	private int task3;
@@ -457,13 +448,12 @@ public class GameEngine implements Listener {
 
 				if (temps3 != 0) {
 
-					for(UUID uuid : ce.playerInGame){
+					for (UUID uuid : ce.playerInGame) {
 						Player str = Bukkit.getPlayer(uuid);
-						
-						str.playSound(str.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.0f, 1.0f);
-					
-					}
 
+						str.playSound(str.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.0f, 1.0f);
+
+					}
 
 					temps3--;
 
@@ -479,74 +469,70 @@ public class GameEngine implements Listener {
 
 	}
 
-	
 	public void end(int score1, int score2, Player player) {
 
 		GladiatorsState.setState(GladiatorsState.WAIT);
 
-				if (player == wpe.joueur1 || player == wpe.joueur2
-						|| player == wpe.joueur3) {
+		if (player == wpe.joueur1 || player == wpe.joueur2 || player == wpe.joueur3) {
 
-					PacketPlayOutTitle winTitle = new PacketPlayOutTitle(EnumTitleAction.TITLE,
-							ChatSerializer
-									.a("{\"text\":\"Fin de la partie !\",\"color\":\"gold\",\"bold\":true,\"underlined\":true}"),
-							20, 40, 30);
-					PacketPlayOutTitle winSubtitle = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE,
-							ChatSerializer.a("{\"text\":\"Equipe " + ChatColor.BLUE + "" + ChatColor.BOLD
-									+ "bleue gagnante " + ChatColor.RESET + "!\",\"color\":\"white\",\"italic\":true}"),
-							20, 40, 30);
+			PacketPlayOutTitle winTitle = new PacketPlayOutTitle(EnumTitleAction.TITLE,
+					ChatSerializer
+							.a("{\"text\":\"Fin de la partie !\",\"color\":\"gold\",\"bold\":true,\"underlined\":true}"),
+					20, 40, 30);
+			PacketPlayOutTitle winSubtitle = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE,
+					ChatSerializer.a("{\"text\":\"Equipe " + ChatColor.BLUE + "" + ChatColor.BOLD + "bleue gagnante "
+							+ ChatColor.RESET + "!\",\"color\":\"white\",\"italic\":true}"),
+					20, 40, 30);
 
-					PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+			PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
 
-					connection.sendPacket(winTitle);
-					connection.sendPacket(winSubtitle);
+			connection.sendPacket(winTitle);
+			connection.sendPacket(winSubtitle);
 
-					endGame();
+			endGame();
 
-				} else if (player == wpe.joueur4 || player == wpe.joueur5
-						|| player == wpe.joueur6) {
+		} else if (player == wpe.joueur4 || player == wpe.joueur5 || player == wpe.joueur6) {
 
-					PacketPlayOutTitle winTitle = new PacketPlayOutTitle(EnumTitleAction.TITLE,
-							ChatSerializer
-									.a("{\"text\":\"Fin de la partie !\",\"color\":\"gold\",\"bold\":true,\"underlined\":true}"),
-							20, 40, 30);
-					PacketPlayOutTitle winSubtitle = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE,
-							ChatSerializer.a("{\"text\":\"Equipe " + ChatColor.RED + "" + ChatColor.BOLD
-									+ "rouge gagnante " + ChatColor.RESET + "!\",\"color\":\"white\",\"italic\":true}"),
-							20, 40, 30);
+			PacketPlayOutTitle winTitle = new PacketPlayOutTitle(EnumTitleAction.TITLE,
+					ChatSerializer
+							.a("{\"text\":\"Fin de la partie !\",\"color\":\"gold\",\"bold\":true,\"underlined\":true}"),
+					20, 40, 30);
+			PacketPlayOutTitle winSubtitle = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE,
+					ChatSerializer.a("{\"text\":\"Equipe " + ChatColor.RED + "" + ChatColor.BOLD + "rouge gagnante "
+							+ ChatColor.RESET + "!\",\"color\":\"white\",\"italic\":true}"),
+					20, 40, 30);
 
-					PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+			PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
 
-					connection.sendPacket(winTitle);
-					connection.sendPacket(winSubtitle);
+			connection.sendPacket(winTitle);
+			connection.sendPacket(winSubtitle);
 
-					endGame();
+			endGame();
 
-				}
+		}
 
-				scoreBleu = 0;
-				scoreRouge = 0;
+		scoreBleu = 0;
+		scoreRouge = 0;
 
-				wpe.u = 0;
+		wpe.u = 0;
 
-				if (wpe.teamBleu2.contains((UUID) player.getUniqueId())) {
+		if (wpe.teamBleu2.contains((UUID) player.getUniqueId())) {
 
-					lb--;
-					joueurLoc.remove(player);
-					wpe.teamBleu.add(player.getUniqueId());
+			lb--;
+			joueurLoc.remove(player);
+			wpe.teamBleu.add(player.getUniqueId());
 
-				}
-				if (wpe.teamRouge2.contains((UUID) player.getUniqueId())) {
+		}
+		if (wpe.teamRouge2.contains((UUID) player.getUniqueId())) {
 
-					lr--;
-					joueurLoc.remove(player);
-					wpe.teamRouge.add(player.getUniqueId());
+			lr--;
+			joueurLoc.remove(player);
+			wpe.teamRouge.add(player.getUniqueId());
 
-				}
+		}
 
 	}
-	
-	
+
 	public void performEffectOnKill(Player player) {
 
 		new BukkitRunnable() {
@@ -570,8 +556,7 @@ public class GameEngine implements Listener {
 			}
 		}.runTaskTimer(Bukkit.getPluginManager().getPlugin("Gladiators"), 0, 1);
 	}
-	
-	
+
 	public void performEffectOnEmeraldBreak(Block b) {
 
 		Location loc = b.getLocation();
@@ -643,7 +628,6 @@ public class GameEngine implements Listener {
 		}.runTaskTimer(Bukkit.getPluginManager().getPlugin("Gladiators"), 0, 3);
 
 	}
-	
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
@@ -674,8 +658,7 @@ public class GameEngine implements Listener {
 
 		} else {
 
-			if (player == wpe.joueur1 || player == wpe.joueur2
-					|| player == wpe.joueur3) {
+			if (player == wpe.joueur1 || player == wpe.joueur2 || player == wpe.joueur3) {
 
 				if (block.getLocation().equals(locBleu)) {
 
@@ -688,11 +671,11 @@ public class GameEngine implements Listener {
 
 					event.setCancelled(true);
 
-					for(UUID uuid : ce.playerInGame){
-					Player p = Bukkit.getPlayer(uuid);
-						
-					end(scoreBleu, scoreRouge, p);
-					this.stop();
+					for (UUID uuid : ce.playerInGame) {
+						Player p = Bukkit.getPlayer(uuid);
+
+						end(scoreBleu, scoreRouge, p);
+						this.stop();
 
 					}
 
@@ -700,8 +683,7 @@ public class GameEngine implements Listener {
 
 			}
 
-			if (player == wpe.joueur4 || player == wpe.joueur5
-					|| player == wpe.joueur6) {
+			if (player == wpe.joueur4 || player == wpe.joueur5 || player == wpe.joueur6) {
 
 				if (block.getLocation().equals(locRouge)) {
 
@@ -713,34 +695,34 @@ public class GameEngine implements Listener {
 					performEffectOnEmeraldBreak(block);
 
 					event.setCancelled(true);
-					
-					for(UUID uuid : ce.playerInGame){
+
+					for (UUID uuid : ce.playerInGame) {
 						Player p = Bukkit.getPlayer(uuid);
-							
+
 						end(scoreBleu, scoreRouge, p);
 						this.stop();
 
-						}
+					}
 				}
 			}
-			
+
 			event.setCancelled(true);
-			
+
 		}
 	}
-	
+
 	@EventHandler
-	public void onInteract(PlayerInteractEvent e){
-		
+	public void onInteract(PlayerInteractEvent e) {
+
 		Action a = e.getAction();
-		
-		if(e.getPlayer() instanceof Player){
+
+		if (e.getPlayer() instanceof Player) {
 			Player p = (Player) e.getPlayer();
 			Material item = e.getMaterial();
-			
-			if(a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK){
-				if(item == Material.SKULL_ITEM){
-					
+
+			if (a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK) {
+				if (item == Material.SKULL_ITEM) {
+
 					p.getInventory().remove(new ItemStack(item, 1));
 					p.updateInventory();
 
@@ -749,10 +731,9 @@ public class GameEngine implements Listener {
 				}
 			}
 		}
-		
+
 	}
-	
-	
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEntityEvent event) {
 		Player player = event.getPlayer();
@@ -999,7 +980,7 @@ public class GameEngine implements Listener {
 
 		}
 	}
-	
+
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent event) {
 		if (GladiatorsState.isState(GladiatorsState.GAMEPVP)) {
@@ -1009,5 +990,5 @@ public class GameEngine implements Listener {
 
 		}
 	}
-	
+
 }

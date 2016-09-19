@@ -41,14 +41,14 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	private CreationEngine ce;
 	private ChatUtils cu;
 	private GameEngine se;
-	
+
 	public WaitingPlayersEngine(Gladiators pl, ChatUtils cu, GameEngine se, CreationEngine ce) {
 		this.pl = pl;
 		this.cu = cu;
 		this.se = se;
 		this.ce = ce;
 	}
-	
+
 	private Location locAtSign = null;
 	public ArrayList<UUID> teamBleu = new ArrayList<>();
 	public ArrayList<UUID> teamBleu2 = new ArrayList<>();
@@ -57,12 +57,11 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	public Player joueur1, joueur2, joueur3, joueur4, joueur5, joueur6, joueurNone;
 	private Location locSign;
 	public int u = 0;
-	
+
 	public void signUpdate() {
 
 		locSign = new Location(Bukkit.getWorld("world"), pl.getConfig().getDouble("Sign.x"),
-				pl.getConfig().getDouble("Sign.y"),
-				pl.getConfig().getDouble("Sign.z"));
+				pl.getConfig().getDouble("Sign.y"), pl.getConfig().getDouble("Sign.z"));
 
 		World w = locSign.getWorld();
 
@@ -77,10 +76,9 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 			sign.update();
 
 		}
-		
-		
+
 	}
-	
+
 	public void setLevel(int timer) {
 
 		for (UUID uuid : ce.playerInGame) {
@@ -93,10 +91,10 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 		}
 
 	}
-	
+
 	public int task;
 	public int temps = 10;
-	
+
 	public void timer() {
 		task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(pl, new Runnable() {
 
@@ -109,13 +107,13 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 					Bukkit.broadcastMessage(ChatColor.GREEN + "La partie commence dans : " + ChatColor.GOLD + ""
 							+ ChatColor.BOLD + temps);
-					
-					for(UUID uuid : ce.playerInGame){
-						
+
+					for (UUID uuid : ce.playerInGame) {
+
 						Player p = Bukkit.getPlayer(uuid);
-						
+
 						ce.setScoreboard(p);
-				
+
 					}
 
 				} else if (temps == 0) {
@@ -139,7 +137,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 		}, 20, 20);
 
 	}
-	
+
 	public void performClickSignEffect() {
 
 		Location loc = locSign;
@@ -246,7 +244,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 			}
 		}
 	}
-	
+
 	private ItemStack nameItem2(ItemStack item, short id, String name) {
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
@@ -259,60 +257,57 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 	private ItemStack nameItem2(Material item, short id, String name) {
 		return nameItem2(new ItemStack(item), id, name);
 	}
-	
+
 	ItemStack equipe = new ItemStack(Material.ENDER_CHEST);
 	ItemMeta im = equipe.getItemMeta();
 
 	@EventHandler
-	public void onInteract(PlayerInteractEvent e){
-		
+	public void onInteract(PlayerInteractEvent e) {
+
 		Block b = e.getClickedBlock();
 		Action a = e.getAction();
-		
-		if(!(e.getPlayer() instanceof Player)){
+
+		if (!(e.getPlayer() instanceof Player)) {
 			return;
-		}else{
-			
+		} else {
+
 			Player p = (Player) e.getPlayer();
 			Material item = e.getMaterial();
-			
-			if(!(a == Action.RIGHT_CLICK_BLOCK)){
-				
-				if(a == Action.RIGHT_CLICK_AIR || a == Action.LEFT_CLICK_BLOCK){
-					
-				
-				if (item == Material.ENDER_CHEST) {
 
-					Inventory newInv = Bukkit.createInventory(null, 9, "Equipe");
-					ItemStack equipeBleu = nameItem2(Material.WOOL, (short) 11,
-							ChatColor.DARK_AQUA + "Rejoins l'équipe bleue !");
-					ItemStack equipeRouge = nameItem2(Material.WOOL, (short) 14,
-							ChatColor.DARK_RED + "Rejoins l'équipe rouge !");
+			if (!(a == Action.RIGHT_CLICK_BLOCK)) {
 
-					newInv.setItem(2, equipeBleu);
-					newInv.setItem(6, equipeRouge);
+				if (a == Action.RIGHT_CLICK_AIR || a == Action.LEFT_CLICK_BLOCK) {
 
-					p.openInventory(newInv);
+					if (item == Material.ENDER_CHEST) {
 
-				}
-				
+						Inventory newInv = Bukkit.createInventory(null, 9, "Equipe");
+						ItemStack equipeBleu = nameItem2(Material.WOOL, (short) 11,
+								ChatColor.DARK_AQUA + "Rejoins l'équipe bleue !");
+						ItemStack equipeRouge = nameItem2(Material.WOOL, (short) 14,
+								ChatColor.DARK_RED + "Rejoins l'équipe rouge !");
+
+						newInv.setItem(2, equipeBleu);
+						newInv.setItem(6, equipeRouge);
+
+						p.openInventory(newInv);
+
+					}
+
 				}
 
 				return;
-			}else{
-				
-				if(b.getState() instanceof Sign) {
-					
+			} else {
+
+				if (b.getState() instanceof Sign) {
+
 					Sign s = (Sign) b.getState();
-					
+
 					if (s.getLine(1).equals(ChatColor.AQUA + "[LOBBY]")) {
-						
+
 						if (!ce.playerInGame.contains(p.getUniqueId())) {
 
-							Location loc = new Location(Bukkit.getWorld("world"),
-									pl.getConfig().getDouble("Lobby.x"),
-									pl.getConfig().getDouble("Lobby.y"),
-									pl.getConfig().getDouble("Lobby.z"));
+							Location loc = new Location(Bukkit.getWorld("world"), pl.getConfig().getDouble("Lobby.x"),
+									pl.getConfig().getDouble("Lobby.y"), pl.getConfig().getDouble("Lobby.z"));
 
 							ce.playerInGame.add(p.getUniqueId());
 
@@ -332,20 +327,15 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 								pl.getConfig().createSection("Players.Name." + p.getName());
 
-								pl.getConfig().set("Players." + p.getName() + ".x",
-										p.getLocation().getBlockX() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".x", p.getLocation().getBlockX() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".y",
-										p.getLocation().getBlockY() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".y", p.getLocation().getBlockY() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".z",
-										p.getLocation().getBlockZ() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".z", p.getLocation().getBlockZ() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".yaw",
-										p.getLocation().getYaw());
+								pl.getConfig().set("Players." + p.getName() + ".yaw", p.getLocation().getYaw());
 
-								pl.getConfig().set("Players." + p.getName() + ".pitch",
-										p.getLocation().getPitch());
+								pl.getConfig().set("Players." + p.getName() + ".pitch", p.getLocation().getPitch());
 
 								pl.getConfig().set("Players.Name." + p.getName(), p.getName());
 
@@ -354,8 +344,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 										pl.getConfig().getDouble("Players." + p.getName() + ".y"),
 										pl.getConfig().getDouble("Players." + p.getName() + ".z"),
 										(float) pl.getConfig().get("Players." + p.getName() + ".yaw"),
-										(float) pl.getConfig()
-												.get("Players." + p.getName() + ".pitch"));
+										(float) pl.getConfig().get("Players." + p.getName() + ".pitch"));
 
 								pl.saveConfig();
 
@@ -375,28 +364,22 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 								pl.getConfig().set("Players.Name." + p.getName(), p.getName());
 
-								pl.getConfig().set("Players." + p.getName() + ".x",
-										p.getLocation().getBlockX() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".x", p.getLocation().getBlockX() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".y",
-										p.getLocation().getBlockY() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".y", p.getLocation().getBlockY() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".z",
-										p.getLocation().getBlockZ() + 0.5);
+								pl.getConfig().set("Players." + p.getName() + ".z", p.getLocation().getBlockZ() + 0.5);
 
-								pl.getConfig().set("Players." + p.getName() + ".yaw",
-										p.getLocation().getYaw());
+								pl.getConfig().set("Players." + p.getName() + ".yaw", p.getLocation().getYaw());
 
-								pl.getConfig().set("Players." + p.getName() + ".pitch",
-										p.getLocation().getPitch());
+								pl.getConfig().set("Players." + p.getName() + ".pitch", p.getLocation().getPitch());
 
 								locAtSign = new Location(Bukkit.getWorld("world"),
 										pl.getConfig().getDouble("Players." + p.getName() + ".x"),
 										pl.getConfig().getDouble("Players." + p.getName() + ".y"),
 										pl.getConfig().getDouble("Players." + p.getName() + ".z"),
 										(float) pl.getConfig().get("Players." + p.getName() + ".yaw"),
-										(float) pl.getConfig()
-												.get("Players." + p.getName() + ".pitch"));
+										(float) pl.getConfig().get("Players." + p.getName() + ".pitch"));
 
 								pl.saveConfig();
 
@@ -407,7 +390,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							signUpdate();
 
 							performClickSignEffect();
-							
+
 							ce.setScoreboard(p);
 
 							p.getInventory().clear();
@@ -418,13 +401,13 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							if (ce.playerInGame.size() == 2) {
 
 								GladiatorsState.setState(GladiatorsState.LOBBY);
-								
-								for(UUID uuid : ce.playerInGame){
-									
+
+								for (UUID uuid : ce.playerInGame) {
+
 									Player pl = Bukkit.getPlayer(uuid);
-									
+
 									ce.setScoreboard(pl);
-							
+
 								}
 
 							}
@@ -435,38 +418,37 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 							e.setCancelled(true);
 
 						}
-						
+
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	@EventHandler
-	public void onInventoryClick(InventoryClickEvent e){
-		
+	public void onInventoryClick(InventoryClickEvent e) {
+
 		Inventory inv = e.getInventory();
-		
-		if(!(e.getWhoClicked() instanceof Player)){
+
+		if (!(e.getWhoClicked() instanceof Player)) {
 			return;
-		}else{
-			
+		} else {
+
 			Player p = (Player) e.getWhoClicked();
-			
-			if(!inv.getTitle().equals("Equipe")){
+
+			if (!inv.getTitle().equals("Equipe")) {
 				return;
-			}else{
-				
+			} else {
+
 				ItemStack item = e.getCurrentItem();
 
 				Player plaayerrs = p;
 
-				if (!teamBleu2.contains(plaayerrs.getUniqueId())
-						&& !teamRouge2.contains(plaayerrs.getUniqueId())) {
+				if (!teamBleu2.contains(plaayerrs.getUniqueId()) && !teamRouge2.contains(plaayerrs.getUniqueId())) {
 
 					if (item.getType() == Material.WOOL && item.getDurability() == 11) {
 
@@ -655,21 +637,20 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 					plaayerrs.closeInventory();
 
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent e){
+	public void onPlayerQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		
-		if(ce.playerInGame.size() > 0){
-			
-			
+
+		if (ce.playerInGame.size() > 0) {
+
 			Iterator<UUID> itr = ce.playerInGame.iterator();
 			while (itr.hasNext()) {
 
@@ -677,7 +658,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 				UUID uuid = itr.next();
 
 				if (p == pl) {
-					
+
 					u--;
 
 					if (pl == joueur1) {
@@ -752,55 +733,54 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 
 					}
 
-					e.setQuitMessage(
-							cu.getPrefix() + p.getName() + " s'est déconnecté et a été retiré de la partie");
+					e.setQuitMessage(cu.getPrefix() + p.getName() + " s'est déconnecté et a été retiré de la partie");
 
 				}
 
 			}
-			
-			for(UUID uuid : ce.playerInGame){
-				
+
+			for (UUID uuid : ce.playerInGame) {
+
 				Player pl = Bukkit.getPlayer(uuid);
-				
+
 				ce.setScoreboard(pl);
-		
+
 			}
 
 			ce.playerInGame.remove(p.getUniqueId());
-			
-			if(ce.playerInGame.size() < 2){
-				
+
+			if (ce.playerInGame.size() < 2) {
+
 				Bukkit.getServer().getScheduler().cancelTask(task);
 				GladiatorsState.setState(GladiatorsState.WAIT);
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	public void registerEvents(){
+
+	public void registerEvents() {
 		PluginManager pm = Bukkit.getPluginManager();
-		
+
 		pm.registerEvents(this, pl);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		if(!(sender instanceof Player)){
+
+		if (!(sender instanceof Player)) {
 			sender.sendMessage("Tu dois etre un joueur afin d'executer cette commande !");
 			return false;
-		}else {
-			
+		} else {
+
 			Player p = (Player) sender;
-			
-			if(locAtSign == null){
+
+			if (locAtSign == null) {
 				return false;
-			}else{
-				
+			} else {
+
 				p.teleport(locAtSign);
 
 				p.sendMessage(ChatColor.GOLD + "Tu as été téléporté au lobby !");
@@ -860,7 +840,7 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 						}
 
 						itr.remove();
-						
+
 					}
 
 				}
@@ -873,17 +853,17 @@ public class WaitingPlayersEngine implements CommandExecutor, Listener {
 				}
 
 				signUpdate();
-				
-				for(UUID uuid : ce.playerInGame){
-					
+
+				for (UUID uuid : ce.playerInGame) {
+
 					Player pl = Bukkit.getPlayer(uuid);
-					
+
 					ce.setScoreboard(pl);
-			
+
 				}
-				
+
 				p.getInventory().clear();
-				
+
 				return true;
 
 			}

@@ -41,16 +41,16 @@ public class CreationEngine implements CommandExecutor, Listener {
 	private Gladiators pl;
 	private WaitingPlayersEngine wpe;
 	private GameEngine se;
-	
+
 	public CreationEngine(Gladiators pl, WaitingPlayersEngine wpe, GameEngine se) {
 		this.pl = pl;
 		this.wpe = wpe;
 		this.se = se;
 	}
-	
+
 	private int i = 1;
 	public ArrayList<UUID> playerInGame = new ArrayList<>();
-	
+
 	public Player player;
 	public Scoreboard scoreboard;
 	public Objective obj;
@@ -60,31 +60,32 @@ public class CreationEngine implements CommandExecutor, Listener {
 	public Team rouge;
 	int kills;
 	int lastkills;
-	
-	
+
 	private int players;
 
-    private int timer;
-    
-    private int killsBleu;
-    private int lastkillsBleu;
-    private int killsRouge;
-    private int lastkillsRouge;
-   
-    private int timer2;
-    private int lastTimer;
-    private String lastS;
-    private String S;
-	
-	public void createScoreboard(){
-		
+	private int timer;
+
+	private int killsBleu;
+	private int lastkillsBleu;
+	private int killsRouge;
+	private int lastkillsRouge;
+
+	private int timer2;
+	private int lastTimer;
+	private String lastS;
+	private String S;
+
+	public void createScoreboard() {
+
+		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+
 		obj = scoreboard.registerNewObjective("gladiators", "dummy");
 		obj = scoreboard.getObjective("gladiators");
 		objHealthTab = scoreboard.registerNewObjective("hpTab", "health");
 		objHealthTab = scoreboard.getObjective("hpTab");
 		objHealthBN = scoreboard.registerNewObjective("hpBN", "health");
 		objHealthBN = scoreboard.getObjective("hpBN");
-		
+
 		bleu = scoreboard.registerNewTeam("Bleu");
 
 		bleu.setPrefix(ChatColor.BLUE + "[BLUE]");
@@ -94,103 +95,101 @@ public class CreationEngine implements CommandExecutor, Listener {
 
 		rouge.setPrefix(ChatColor.RED + "[RED]");
 		rouge.setAllowFriendlyFire(false);
-		
+
 	}
 
-	public void setScoreboard(Player p){
-		
+	public void setScoreboard(Player p) {
+
 		obj.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Gladiators");
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 		objHealthTab.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 		objHealthBN.setDisplaySlot(DisplaySlot.BELOW_NAME);
 		objHealthBN.setDisplayName("/ 20");
-		
-		if(GladiatorsState.isState(GladiatorsState.WAIT)){
-			
+
+		if (GladiatorsState.isState(GladiatorsState.WAIT)) {
+
 			players = playerInGame.size() - 1;
-           
-            obj.getScoreboard().resetScores(""+players);
-            obj.getScore(""+playerInGame.size()).setScore(9);
- 
-            obj.getScoreboard().resetScores("§7En attente de joueurs !");
-            obj.getScore("§7En attente de joueurs !").setScore(7);
-           
-           
-        }else if(GladiatorsState.isState(GladiatorsState.LOBBY)){
-           
-        	timer = wpe.temps - 1;
-        	
-        	obj.getScoreboard().resetScores("§7En attente de joueurs !");
-            obj.getScore("§7Lancement de la partie dans : ").setScore(7);
-            
-            obj.getScoreboard().resetScores(""+wpe.temps);
-            obj.getScore(""+timer).setScore(6);
-       
-        }else{
 
-        	if(se.kills.containsKey(this.player)){
-        		        		
-            kills = se.kills.get(this.player);
-            lastkills = kills - 1;
-        	
-        	}
-        	
-        	killsBleu = se.scoreBleu;
-        	lastkillsBleu = se.scoreBleu - 1;
-        	killsRouge = se.scoreRouge;
-        	lastkillsRouge = se.scoreRouge - 1;
-        	
-        	timer2 = 480 - se.temps4;
-        	lastTimer = timer2 + 1;
-        	
-        	lastS = new SimpleDateFormat("mm:ss").format(lastTimer * 1000);
-        	S = new SimpleDateFormat("mm:ss").format(timer2 * 1000);
-            
-            obj.getScoreboard().resetScores("§7Lancement de la partie dans : ");
-            obj.getScoreboard().resetScores(""+wpe.temps);
-           
-            obj.getScoreboard().resetScores(""+players);
-            obj.getScore(""+playerInGame.size()).setScore(9);
-            obj.getScoreboard().resetScores(""+lastkills);
-           
-            obj.getScoreboard().resetScores("§7Fin de la partie dans : ");
-            obj.getScore("§7Fin de la partie dans : ").setScore(7);
+			obj.getScoreboard().resetScores("" + players);
+			obj.getScore("" + playerInGame.size()).setScore(9);
 
-            obj.getScoreboard().resetScores(lastS);
-            obj.getScore(S).setScore(6);
-            
-            obj.getScoreboard().resetScores("§7 Kills bleus : ");
-            obj.getScore("§7 Kills bleus : ").setScore(4);
+			obj.getScoreboard().resetScores("§7En attente de joueurs !");
+			obj.getScore("§7En attente de joueurs !").setScore(7);
 
-            obj.getScoreboard().resetScores(lastkillsBleu + "");
-            obj.getScore(killsBleu + "").setScore(3);
-            
-            obj.getScoreboard().resetScores("§7 Kills rouges : ");
-            obj.getScore("§7 Kills rouges : ").setScore(2);
-            
-            obj.getScoreboard().resetScores(lastkillsRouge+ "");
-            obj.getScore(killsRouge + "").setScore(1);
- 
-            obj.getScore("§8 ").setScore(11);
-            obj.getScore("§7Joueurs: ").setScore(10);
-            obj.getScore("§e ").setScore(8);
-            obj.getScore("§a ").setScore(5);
-           
-            
-        }
-		
+		} else if (GladiatorsState.isState(GladiatorsState.LOBBY)) {
+
+			timer = wpe.temps - 1;
+
+			obj.getScoreboard().resetScores("§7En attente de joueurs !");
+			obj.getScore("§7Lancement de la partie dans : ").setScore(7);
+
+			obj.getScoreboard().resetScores("" + wpe.temps);
+			obj.getScore("" + timer).setScore(6);
+
+		} else {
+
+			if (se.kills.containsKey(this.player)) {
+
+				kills = se.kills.get(this.player);
+				lastkills = kills - 1;
+
+			}
+
+			killsBleu = se.scoreBleu;
+			lastkillsBleu = se.scoreBleu - 1;
+			killsRouge = se.scoreRouge;
+			lastkillsRouge = se.scoreRouge - 1;
+
+			timer2 = 480 - se.temps4;
+			lastTimer = timer2 + 1;
+
+			lastS = new SimpleDateFormat("mm:ss").format(lastTimer * 1000);
+			S = new SimpleDateFormat("mm:ss").format(timer2 * 1000);
+
+			obj.getScoreboard().resetScores("§7Lancement de la partie dans : ");
+			obj.getScoreboard().resetScores("" + wpe.temps);
+
+			obj.getScoreboard().resetScores("" + players);
+			obj.getScore("" + playerInGame.size()).setScore(9);
+			obj.getScoreboard().resetScores("" + lastkills);
+
+			obj.getScoreboard().resetScores("§7Fin de la partie dans : ");
+			obj.getScore("§7Fin de la partie dans : ").setScore(7);
+
+			obj.getScoreboard().resetScores(lastS);
+			obj.getScore(S).setScore(6);
+
+			obj.getScoreboard().resetScores("§7 Kills bleus : ");
+			obj.getScore("§7 Kills bleus : ").setScore(4);
+
+			obj.getScoreboard().resetScores(lastkillsBleu + "");
+			obj.getScore(killsBleu + "").setScore(3);
+
+			obj.getScoreboard().resetScores("§7 Kills rouges : ");
+			obj.getScore("§7 Kills rouges : ").setScore(2);
+
+			obj.getScoreboard().resetScores(lastkillsRouge + "");
+			obj.getScore(killsRouge + "").setScore(1);
+
+			obj.getScore("§8 ").setScore(11);
+			obj.getScore("§7Joueurs: ").setScore(10);
+			obj.getScore("§e ").setScore(8);
+			obj.getScore("§a ").setScore(5);
+
+		}
+
 		p.setScoreboard(scoreboard);
-		
+
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		if(!(sender instanceof Player)){
+
+		if (!(sender instanceof Player)) {
 			sender.sendMessage("Tu dois etre un joueur afin d'executer cette commande !");
 			return false;
-		}else{
-			
+		} else {
+
 			Player player = (Player) sender;
 			Inventory inv = Bukkit.createInventory(null, 9, "Gladiators");
 			ItemStack lobbyItem = nameItem(Material.DIAMOND_SWORD,
@@ -200,8 +199,10 @@ public class CreationEngine implements CommandExecutor, Listener {
 			ItemStack spawnItem2 = nameItem2(Material.WOOL, (short) 14,
 					ChatColor.DARK_RED + "Ajoute un point de spawn pour l'équipe rouge !");
 			ItemStack blockItem1 = nameItem(Material.LAPIS_BLOCK, ChatColor.GREEN + "Bloc à détruire (équipe bleu) !");
-			ItemStack blockItem2 = nameItem(Material.REDSTONE_BLOCK, ChatColor.GREEN + "Bloc à détruire (équipe rouge) !");
-			ItemStack nullItem = nameItem2(Material.STAINED_GLASS_PANE, (short) 14, ChatColor.LIGHT_PURPLE + "###########");
+			ItemStack blockItem2 = nameItem(Material.REDSTONE_BLOCK,
+					ChatColor.GREEN + "Bloc à détruire (équipe rouge) !");
+			ItemStack nullItem = nameItem2(Material.STAINED_GLASS_PANE, (short) 14,
+					ChatColor.LIGHT_PURPLE + "###########");
 			inv.setItem(0, spawnItem);
 			inv.setItem(1, spawnItem2);
 			inv.setItem(2, blockItem1);
@@ -212,18 +213,18 @@ public class CreationEngine implements CommandExecutor, Listener {
 			}
 
 			player.openInventory(inv);
-		
+
 			return true;
 
 		}
 	}
-	
-	public void registerEvents(){
+
+	public void registerEvents() {
 		PluginManager pm = Bukkit.getPluginManager();
-		
+
 		pm.registerEvents(this, pl);
 	}
-	
+
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event) {
 
@@ -234,13 +235,13 @@ public class CreationEngine implements CommandExecutor, Listener {
 			if (p instanceof Player || p instanceof Arrow) {
 
 				event.setCancelled(true);
-				
+
 				Arrow a = (Arrow) p;
-				
-				if(a.getShooter() instanceof Player){
-					
+
+				if (a.getShooter() instanceof Player) {
+
 					event.setCancelled(true);
-					
+
 				}
 
 			}
@@ -248,7 +249,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 		}
 
 	}
-	
+
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 
@@ -261,7 +262,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 		}
 
 	}
-	
+
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 
@@ -273,59 +274,65 @@ public class CreationEngine implements CommandExecutor, Listener {
 		}
 
 	}
-	
+
 	@EventHandler
 	public void onSignChange(SignChangeEvent e) {
 
-		if (e.getLine(1).equals("[setlobby]")) {
-			e.setLine(1, ChatColor.AQUA + "[LOBBY]");
-			e.setLine(2, ChatColor.RED + String.valueOf(playerInGame.size()) + " / 6");
-			
-			this.createScoreboard();
+		if (e.getBlock().getState() instanceof Sign) {
 
-			if (pl.getConfig().getConfigurationSection("Sign") == null) {
+			Sign s = (Sign) e.getBlock().getState();
 
-				pl.getConfig().createSection("Sign.x");
-				pl.getConfig().createSection("Sign.y");
-				pl.getConfig().createSection("Sign.z");
+			if (s.getLine(1).equals("[setlobby]")) {
+				s.setLine(1, ChatColor.AQUA + "[LOBBY]");
+				s.setLine(2, ChatColor.RED + String.valueOf(playerInGame.size()) + " / 6");
 
-				pl.getConfig().set("Sign.x", e.getBlock().getX());
-				pl.getConfig().set("Sign.y", e.getBlock().getY());
-				pl.getConfig().set("Sign.z", e.getBlock().getZ());
+				if (pl.getConfig().getConfigurationSection("Sign") == null) {
 
-				pl.saveConfig();
+					pl.getConfig().createSection("Sign.x");
+					pl.getConfig().createSection("Sign.y");
+					pl.getConfig().createSection("Sign.z");
 
-			} else {
+					pl.getConfig().set("Sign.x", s.getBlock().getX());
+					pl.getConfig().set("Sign.y", s.getBlock().getY());
+					pl.getConfig().set("Sign.z", s.getBlock().getZ());
 
-				pl.getConfig().set("Sign.x", e.getBlock().getX());
-				pl.getConfig().set("Sign.y", e.getBlock().getY());
-				pl.getConfig().set("Sign.z", e.getBlock().getZ());
+					pl.saveConfig();
 
-				pl.saveConfig();
+				} else {
+
+					pl.getConfig().set("Sign.x", s.getBlock().getX());
+					pl.getConfig().set("Sign.y", s.getBlock().getY());
+					pl.getConfig().set("Sign.z", s.getBlock().getZ());
+
+					pl.saveConfig();
+
+				}
+
+				s.update();
 
 			}
 
 		}
 
 	}
-	
+
 	@EventHandler
-	public void onInventoryClick(InventoryClickEvent e){
-		
+	public void onInventoryClick(InventoryClickEvent e) {
+
 		Inventory inv = e.getInventory();
-		
-		if(!(e.getWhoClicked() instanceof Player)){
+
+		if (!(e.getWhoClicked() instanceof Player)) {
 			return;
-		}else{
-			
+		} else {
+
 			Player p = (Player) e.getWhoClicked();
-			
-			if(!inv.getTitle().equals("Gladiators")){
+
+			if (!inv.getTitle().equals("Gladiators")) {
 				return;
-			}else{
-				
+			} else {
+
 				ItemStack item = e.getCurrentItem();
-				
+
 				if (item.getType() == Material.DIAMOND_SWORD) {
 
 					if (pl.getConfig().getConfigurationSection("Lobby") == null) {
@@ -372,11 +379,11 @@ public class CreationEngine implements CommandExecutor, Listener {
 					}
 
 				}
-				
+
 				if (item.getType() == Material.STAINED_GLASS_PANE && item.getDurability() == 14) {
 					e.setCancelled(true);
 				}
-				
+
 				if (item.getType() == Material.LAPIS_BLOCK) {
 
 					if (pl.getConfig().getConfigurationSection("Block") == null) {
@@ -478,7 +485,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 					}
 
 				}
-				
+
 				if (item.getType() == Material.WOOL && item.getDurability() == 11) {
 
 					Location loc = p.getLocation();
@@ -493,8 +500,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 
 						if (i <= 3) {
 
-							pl.getConfig().getConfigurationSection("Spawns_bleu")
-									.createSection(String.valueOf(i));
+							pl.getConfig().getConfigurationSection("Spawns_bleu").createSection(String.valueOf(i));
 							pl.getConfig().set("Spawns_bleu." + i + ".x", Double.valueOf(x));
 							pl.getConfig().set("Spawns_bleu." + i + ".y", Double.valueOf(y));
 							pl.getConfig().set("Spawns_bleu." + i + ".z", Double.valueOf(z));
@@ -516,8 +522,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 
 						if (i <= 3) {
 
-							pl.getConfig().getConfigurationSection("Spawns_bleu")
-									.createSection(String.valueOf(i));
+							pl.getConfig().getConfigurationSection("Spawns_bleu").createSection(String.valueOf(i));
 							pl.getConfig().set("Spawns_bleu." + i + ".x", Double.valueOf(x));
 							pl.getConfig().set("Spawns_bleu." + i + ".y", Double.valueOf(y));
 							pl.getConfig().set("Spawns_bleu." + i + ".z", Double.valueOf(z));
@@ -559,8 +564,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 
 						if (i <= 6 && i > 3) {
 
-							pl.getConfig().getConfigurationSection("Spawns_rouge")
-									.createSection(String.valueOf(i));
+							pl.getConfig().getConfigurationSection("Spawns_rouge").createSection(String.valueOf(i));
 							pl.getConfig().set("Spawns_rouge." + i + ".x", Double.valueOf(x));
 							pl.getConfig().set("Spawns_rouge." + i + ".y", Double.valueOf(y));
 							pl.getConfig().set("Spawns_rouge." + i + ".z", Double.valueOf(z));
@@ -582,8 +586,7 @@ public class CreationEngine implements CommandExecutor, Listener {
 
 						if (i <= 6 && i > 3) {
 
-							pl.getConfig().getConfigurationSection("Spawns_rouge")
-									.createSection(String.valueOf(i));
+							pl.getConfig().getConfigurationSection("Spawns_rouge").createSection(String.valueOf(i));
 							pl.getConfig().set("Spawns_rouge." + i + ".x", Double.valueOf(x));
 							pl.getConfig().set("Spawns_rouge." + i + ".y", Double.valueOf(y));
 							pl.getConfig().set("Spawns_rouge." + i + ".z", Double.valueOf(z));
@@ -604,13 +607,13 @@ public class CreationEngine implements CommandExecutor, Listener {
 						}
 					}
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	private ItemStack nameItem(ItemStack item, String name) {
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(name);
